@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Client data - do not commit sensitive submissions
+submissions.json
+
+# Uploaded logo files from clients
+uploads/
+
+# Environment files
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db

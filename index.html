@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ONICC - Digital Infrastructure Onboarding</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: oklch(18% 0.02 245);
+            --bg-surface: oklch(25% 0.02 245);
+            --bg-surface-light: oklch(30% 0.02 245);
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --brand-cyan: oklch(67% 0.17 204);
+            --brand-red: oklch(60% 0.22 24);
+            --border-subtle: rgba(255,255,255,0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 3rem 1.5rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 1rem;
+            padding: 3rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+
+        .form-section {
+            background: var(--bg-surface-light);
+            border: 1px solid var(--border-subtle);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--brand-cyan);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .required::after {
+            content: "*";
+            color: var(--brand-red);
+            margin-left: 0.25rem;
+        }
+
+        .help-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="date"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border-subtle);
+            border-radius: 0.5rem;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--brand-cyan);
+            box-shadow: 0 0 0 3px rgba(0, 174, 239, 0.15);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .radio-group, .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .radio-label, .checkbox-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            font-weight: 400;
+            cursor: pointer;
+        }
+
+        input[type="radio"], input[type="checkbox"] {
+            margin-top: 0.25rem;
+            accent-color: var(--brand-cyan);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--brand-cyan) 0%, oklch(60% 0.15 200) 100%);
+            color: #000;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(0, 174, 239, 0.45);
+        }
+
+        #successMessage {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            background: rgba(46, 204, 113, 0.1);
+            border: 1px solid #2ecc71;
+            border-radius: 0.75rem;
+            color: #2ecc71;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="logo-container">
+            <!-- ONICC Logo Extracted from Source -->
+            <svg viewBox="0 0 224 64" style="height: 50px; width: auto; display: block;" aria-label="ONICC Logo" role="img">
+                <defs>
+                    <linearGradient id="globeBlueGrad" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="oklch(40% 0.18 245)" />
+                        <stop offset="100%" stop-color="oklch(55% 0.18 240)" />
+                    </linearGradient>
+                    <linearGradient id="globeCyanGrad" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="oklch(67% 0.17 204)" />
+                        <stop offset="100%" stop-color="oklch(80% 0.12 195)" />
+                    </linearGradient>
+                    <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stop-color="oklch(50% 0.02 240)" />
+                        <stop offset="40%" stop-color="oklch(85% 0.01 240)" />
+                        <stop offset="70%" stop-color="oklch(95% 0.005 240)" />
+                        <stop offset="100%" stop-color="oklch(45% 0.02 240)" />
+                    </linearGradient>
+                    <linearGradient id="wordmarkRedGrad" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="oklch(62% 0.22 24)" />
+                        <stop offset="100%" stop-color="oklch(53% 0.20 22)" />
+                    </linearGradient>
+                    <clipPath id="sphereClip">
+                        <circle cx="32" cy="32" r="24" />
+                    </clipPath>
+                </defs>
+                <style>
+                    @keyframes spinRing { 0% { transform: rotate(22deg); } 25%, 50% { transform: rotate(382deg); } 75%, 100% { transform: rotate(742deg); } }
+                    @keyframes spinBall { 0%, 25% { transform: rotate(0deg); } 50%, 75% { transform: rotate(360deg); } 100% { transform: rotate(720deg); } }
+                    .logo-ring-part { transform-origin: 32px 32px; animation: spinRing 16s ease-in-out infinite; }
+                    .logo-ball-group { transform-origin: 32px 32px; animation: spinBall 16s ease-in-out infinite; }
+                    @keyframes bulbPulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+                    @keyframes wavePulseInner { 0% { opacity: 0.2; } 30% { opacity: 1; } 60%, 100% { opacity: 0.2; } }
+                    @keyframes wavePulseOuter { 0%, 30% { opacity: 0.2; } 60% { opacity: 1; } 90%, 100% { opacity: 0.2; } }
+                    .wave-bulb { animation: bulbPulse 2s ease-in-out infinite; }
+                    .wave-inner { animation: wavePulseInner 2s ease-in-out infinite; }
+                    .wave-outer { animation: wavePulseOuter 2s ease-in-out infinite; }
+                </style>
+                <g>
+                    <g class="logo-ring-part" transform="rotate(22 32 32)">
+                        <path d="M -4 32 A 36 8 0 0 1 68 32" fill="none" stroke="url(#ringGrad)" stroke-width="6" stroke-linecap="round" />
+                    </g>
+                    <g class="logo-ball-group" clip-path="url(#sphereClip)">
+                        <path d="M -10 0 C 2 10, 2 54, -10 64 H 8 C 20 54, 20 10, 8 0 Z" fill="url(#globeBlueGrad)" />
+                        <path d="M 12 0 C 24 10, 24 54, 12 64 H 24 C 36 54, 36 10, 24 0 Z" fill="url(#globeBlueGrad)" />
+                        <path d="M 28 0 C 40 10, 40 54, 28 64 H 40 C 52 54, 52 10, 40 0 Z" fill="url(#globeCyanGrad)" />
+                        <path d="M 44 0 C 56 10, 56 54, 44 64 H 64 C 76 54, 76 10, 64 0 Z" fill="url(#globeCyanGrad)" />
+                    </g>
+                    <g class="logo-ring-part" transform="rotate(22 32 32)">
+                        <path d="M 68 32 A 36 8 0 0 1 -4 32" fill="none" stroke="url(#ringGrad)" stroke-width="6" stroke-linecap="round" />
+                    </g>
+                </g>
+                <g>
+                    <text x="72" y="45" font-family="inherit" font-size="37" font-weight="800" letter-spacing="-0.03em" fill="url(#wordmarkRedGrad)">ONICC</text>
+                    <g transform="translate(4, -1)">
+                        <line x1="202" y1="16" x2="202" y2="32" stroke="oklch(50% 0.02 240)" stroke-width="1.5" />
+                        <path d="M 198 32 L 202 18 L 206 32" fill="none" stroke="oklch(50% 0.02 240)" stroke-width="1.5" stroke-linejoin="round" />
+                        <line x1="200" y1="25" x2="204" y2="25" stroke="oklch(50% 0.02 240)" stroke-width="1" />
+                        <circle cx="202" cy="15" r="2.5" fill="oklch(67% 0.17 204)" class="wave-bulb" />
+                        <path class="wave-inner" d="M 197 11 A 5 5 0 0 0 197 19" fill="none" stroke="oklch(67% 0.17 204)" stroke-width="1.5" stroke-linecap="round" />
+                        <path class="wave-inner" d="M 207 11 A 5 5 0 0 1 207 19" fill="none" stroke="oklch(67% 0.17 204)" stroke-width="1.5" stroke-linecap="round" />
+                        <path class="wave-outer" d="M 193 7 A 10 10 0 0 0 193 23" fill="none" stroke="oklch(67% 0.17 204)" stroke-width="1.5" stroke-linecap="round" />
+                        <path class="wave-outer" d="M 211 7 A 10 10 0 0 1 211 23" fill="none" stroke="oklch(67% 0.17 204)" stroke-width="1.5" stroke-linecap="round" />
+                    </g>
+                </g>
+            </svg>
+        </div>
+
+        <div class="header">
+            <h1>Digital Infrastructure Onboarding</h1>
+            <p class="subtitle">Complete this blueprint to initiate your project</p>
+        </div>
+
+        <form id="onboardingForm">
+            <!-- Section 1 -->
+            <div class="form-section">
+                <h2>1. Business Identity & Legal Verification</h2>
+                
+                <div class="form-group">
+                    <label class="required" for="businessName">Business Legal Name</label>
+                    <input type="text" id="businessName" name="businessName" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="required" for="businessAddress">Business Physical Address</label>
+                    <textarea id="businessAddress" name="businessAddress" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="taxId">Tax/Registration ID</label>
+                    <input type="text" id="taxId" name="taxId">
+                </div>
+
+                <div class="form-group">
+                    <label class="required" for="contactPerson">Primary Point of Contact</label>
+                    <span class="help-text">Full Name & Position</span>
+                    <input type="text" id="contactPerson" name="contactPerson" required>
+                </div>
+            </div>
+
+            <!-- Section 2 -->
+            <div class="form-section">
+                <h2>2. Core Infrastructure</h2>
+                
+                <div class="form-group">
+                    <label class="required" for="desiredDomain">Desired Domain Name</label>
+                    <span class="help-text">e.g., yourbusiness.com. If you don't have one, please list your top 3 preferred names.</span>
+                    <input type="text" id="desiredDomain" name="desiredDomain" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="required" for="requestedEmails">Requested Email Addresses</label>
+                    <span class="help-text">List the two email prefixes you want (e.g., info@, sales@, admin@, [name]@).</span>
+                    <textarea id="requestedEmails" name="requestedEmails" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Do you currently own a domain?</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="ownsDomain" value="Yes" required> Yes
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="ownsDomain" value="No"> No
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="ownsDomain" value="Not Sure"> I am not sure
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="domainRegistrar">If Yes, where is your domain registered?</label>
+                    <span class="help-text">e.g., GoDaddy, Namecheap, Google Domains.</span>
+                    <input type="text" id="domainRegistrar" name="domainRegistrar">
+                </div>
+            </div>
+
+            <!-- Section 3 -->
+            <div class="form-section">
+                <h2>3. Brand Assets</h2>
+                
+                <div class="form-group">
+                    <label for="logoUpload">Upload Logo (PNG/Vector preferred)</label>
+                    <input type="file" id="logoUpload" name="logoUpload" accept="image/png, image/jpeg, image/svg+xml">
+                </div>
+
+                <div class="form-group">
+                    <label for="brandColors">Brand Color Palette</label>
+                    <span class="help-text">e.g., #000000, #FFFFFF. If you don't know, provide a link to your current marketing materials.</span>
+                    <input type="text" id="brandColors" name="brandColors">
+                </div>
+
+                <div class="form-group">
+                    <label for="tagline">Primary Tagline/Mission Statement</label>
+                    <textarea id="tagline" name="tagline"></textarea>
+                </div>
+            </div>
+
+            <!-- Section 4 -->
+            <div class="form-section">
+                <h2>4. Web Presence Architecture</h2>
+                
+                <div class="form-group">
+                    <label class="required">Primary Conversion Goal (Select all that apply)</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="conversionGoals" value="Collect emails/leads"> Collect customer emails/leads
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="conversionGoals" value="Showcase portfolio/services"> Showcase portfolio/services
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="conversionGoals" value="Direct sales/E-commerce"> Direct sales/E-commerce
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="conversionGoals" value="Information/Contact Hub"> Information/Contact Hub
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="existingContent">Link to Existing Content/Assets</label>
+                    <span class="help-text">Paste a Google Drive or Dropbox link containing your images/text.</span>
+                    <input type="text" id="existingContent" name="existingContent">
+                </div>
+            </div>
+
+            <!-- Section 5 -->
+            <div class="form-section">
+                <h2>5. Commitment & Launch</h2>
+                
+                <div class="form-group">
+                    <label for="launchDate">Estimated Launch Date</label>
+                    <input type="date" id="launchDate" name="launchDate">
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Terms of Service Agreement</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="tos" required> I agree to the setup fee and the ongoing maintenance/hosting subscription.
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">Submit Blueprint</button>
+        </form>
+
+        <div id="successMessage">
+            <h3>Blueprint Submitted Successfully!</h3>
+            <p>We have received your onboarding details and will be in touch shortly.</p>
+        </div>
+    </div>
+
+    <script>
+        // Configuration: Paste your deployed Google Apps Script Web App URL here
+        const PROD_WEB_APP_URL = ''; 
+
+        // Automatically use local backend if testing on localhost or direct file access
+        const WEB_APP_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:'
+            ? 'http://localhost:3020/api/submit'
+            : PROD_WEB_APP_URL;
+
+        document.getElementById('onboardingForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = this.querySelector('.submit-btn');
+            const originalBtnText = submitBtn.innerText;
+            submitBtn.innerText = 'Submitting...';
+            submitBtn.disabled = true;
+
+            // Collect Form Data
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+            data.conversionGoals = formData.getAll('conversionGoals');
+            data.ownsDomain = formData.get('ownsDomain');
+            data.tos = formData.get('tos') === 'on' ? 'Agreed' : 'Not Agreed';
+            
+            // Handle file upload converting it to base64
+            const fileInput = document.getElementById('logoUpload');
+            if (fileInput && fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                data.logoName = file.name;
+                data.logoType = file.type;
+                try {
+                    data.logoBase64 = await toBase64(file);
+                } catch (error) {
+                    console.error('File read error:', error);
+                }
+            }
+
+            console.log('Form Submitted Data:', data);
+            
+            if (!WEB_APP_URL) {
+                // Mock submission if no URL is configured yet
+                setTimeout(() => {
+                    this.style.display = 'none';
+                    document.getElementById('successMessage').style.display = 'block';
+                }, 1000);
+                return;
+            }
+
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8' // Avoid CORS preflight OPTIONS request
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                // Show success state
+                this.style.display = 'none';
+                document.getElementById('successMessage').style.display = 'block';
+            } catch (error) {
+                console.error('Submission error:', error);
+                alert('There was an error submitting the form. Please try again.');
+                submitBtn.innerText = originalBtnText;
+                submitBtn.disabled = false;
+            }
+        });
+
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+                const base64String = reader.result.split(',')[1];
+                resolve(base64String);
+            };
+            reader.onerror = error => reject(error);
+        });
+    </script>
+</body>
+</html>
