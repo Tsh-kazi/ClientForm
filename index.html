@@ -193,6 +193,29 @@
             color: #2ecc71;
             margin-top: 2rem;
         }
+
+        .file-counter {
+            font-size: 0.8rem;
+            color: var(--brand-cyan);
+            margin-top: 0.5rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--brand-cyan);
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
     </style>
 </head>
 <body>
@@ -346,6 +369,14 @@
                 </div>
 
                 <div class="form-group">
+                    <label class="required" for="photosUpload">Upload Photos (minimum 10 recommended)</label>
+                    <span class="help-text">Upload images of your business, products, team, premises, etc. These will be used on your website. JPG/PNG accepted.</span>
+                    <input type="file" id="photosUpload" name="photosUpload" accept="image/png, image/jpeg, image/webp" multiple>
+                    <div class="file-counter" id="photoCounter"></div>
+                    <div class="progress-bar" id="uploadProgress"><div class="progress-bar-fill" id="uploadProgressFill"></div></div>
+                </div>
+
+                <div class="form-group">
                     <label for="brandColors">Brand Color Palette</label>
                     <span class="help-text">e.g., #000000, #FFFFFF. If you don't know, provide a link to your current marketing materials.</span>
                     <input type="text" id="brandColors" name="brandColors">
@@ -438,7 +469,7 @@
             data.ownsDomain = formData.get('ownsDomain');
             data.tos = formData.get('tos') === 'on' ? 'Agreed' : 'Not Agreed';
             
-            // Handle file upload converting it to base64
+            // Handle logo file upload
             const fileInput = document.getElementById('logoUpload');
             if (fileInput && fileInput.files.length > 0) {
                 const file = fileInput.files[0];
@@ -447,14 +478,41 @@
                 try {
                     data.logoBase64 = await toBase64(file);
                 } catch (error) {
-                    console.error('File read error:', error);
+                    console.error('Logo file read error:', error);
                 }
             }
 
-            console.log('Form Submitted Data:', data);
+            // Handle multiple photo uploads
+            const photosInput = document.getElementById('photosUpload');
+            const progressBar = document.getElementById('uploadProgress');
+            const progressFill = document.getElementById('uploadProgressFill');
+            data.photos = [];
+
+            if (photosInput && photosInput.files.length > 0) {
+                progressBar.style.display = 'block';
+                submitBtn.innerText = 'Uploading photos...';
+                const totalFiles = photosInput.files.length;
+
+                for (let i = 0; i < totalFiles; i++) {
+                    const photo = photosInput.files[i];
+                    try {
+                        const base64 = await toBase64(photo);
+                        data.photos.push({
+                            name: photo.name,
+                            type: photo.type,
+                            base64: base64
+                        });
+                        progressFill.style.width = Math.round(((i + 1) / totalFiles) * 100) + '%';
+                    } catch (error) {
+                        console.error('Photo read error:', photo.name, error);
+                    }
+                }
+                submitBtn.innerText = 'Submitting...';
+            }
+
+            console.log('Form Submitted Data:', { ...data, photos: data.photos.length + ' photos' });
             
             if (!WEB_APP_URL) {
-                // Mock submission if no URL is configured yet
                 setTimeout(() => {
                     this.style.display = 'none';
                     document.getElementById('successMessage').style.display = 'block';
@@ -466,12 +524,11 @@
                 const response = await fetch(WEB_APP_URL, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'text/plain;charset=utf-8' // Avoid CORS preflight OPTIONS request
+                        'Content-Type': 'text/plain;charset=utf-8'
                     },
                     body: JSON.stringify(data)
                 });
                 
-                // Show success state
                 this.style.display = 'none';
                 document.getElementById('successMessage').style.display = 'block';
             } catch (error) {
@@ -485,11 +542,23 @@
         const toBase64 = file => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
-            reader.onload = () => {
-                const base64String = reader.result.split(',')[1];
-                resolve(base64String);
-            };
+            reader.onload = () => resolve(reader.result.split(',')[1]);
             reader.onerror = error => reject(error);
+        });
+
+        // Live photo counter
+        document.getElementById('photosUpload').addEventListener('change', function() {
+            const counter = document.getElementById('photoCounter');
+            const count = this.files.length;
+            if (count === 0) {
+                counter.textContent = '';
+            } else if (count < 10) {
+                counter.textContent = count + ' photo(s) selected — we recommend at least 10';
+                counter.style.color = 'oklch(70% 0.15 60)';
+            } else {
+                counter.textContent = '✓ ' + count + ' photos selected';
+                counter.style.color = '#2ecc71';
+            }
         });
     </script>
 </body>

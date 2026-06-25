@@ -40,6 +40,20 @@ app.post('/api/submit', (req, res) => {
             console.log('Saved uploaded logo to:', logoPath);
         }
 
+        // 1b. Process multiple photo uploads
+        let photoPaths = [];
+        if (data.photos && data.photos.length > 0) {
+            console.log(`Processing ${data.photos.length} photo(s)...`);
+            for (const photo of data.photos) {
+                const fileName = `${Date.now()}_${photo.name.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
+                const targetPath = path.join(UPLOADS_DIR, fileName);
+                const fileBuffer = Buffer.from(photo.base64, 'base64');
+                fs.writeFileSync(targetPath, fileBuffer);
+                photoPaths.push(`/uploads/${fileName}`);
+            }
+            console.log(`Saved ${photoPaths.length} photo(s) to uploads/`);
+        }
+
         // 2. Prepare submission object (excluding the raw base64 data to keep JSON clean)
         const submission = {
             id: Date.now(),
@@ -58,7 +72,8 @@ app.post('/api/submit', (req, res) => {
             existingContent: data.existingContent || 'N/A',
             launchDate: data.launchDate || 'N/A',
             tos: data.tos,
-            logoPath: logoPath
+            logoPath: logoPath,
+            photoPaths: photoPaths
         };
 
         // 3. Read current submissions and append the new one
